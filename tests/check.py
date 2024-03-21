@@ -80,7 +80,7 @@ def get_options(checkfile):
             if k == 'CHECK':
                 options.check = v
             else:
-                options.options[k] = v
+                options.options[k] = (v == 'true') if v in ('true', 'false') else v
 
     options.options = {'{}.{}'.format(options.check, k): v for k, v in options.options.items()}
     return options

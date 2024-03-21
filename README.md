@@ -44,11 +44,13 @@ Check all return values by default with the following exceptions:
     + memset
     + memmove
     + printf
+    + fprintf
     + sprintf
     + snprintf
     + strcpy
     + strncpy
     + signal
+    + fputs
     + ::std::copy
     + ::std::copy_if
     + ::std::copy_n
@@ -62,6 +64,7 @@ Check all return values by default with the following exceptions:
     + ::fmt::format_to
 + functions returns T&
 + functions named `insert` and `emplace` but returns an `iterator`
++ member functions of std::atomic
 
 You can mark a function as `[[clang::annotate("cppsafe::may_discard")]]` to ignore its return values.
 
@@ -81,3 +84,4 @@ There are also options to ignore it.
 
 + IgnoredFunctions: `;` separated names
 + IgnoreFunctionRegex: a regex, functions matched are ignored
++ AllowCastToVoid: default `true`

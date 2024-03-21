@@ -1,8 +1,14 @@
-// CHECK=cppsafe-unused-return-value IgnoredFunctions=foo2;foo3 IgnoredFunctionRegex=^abc::def::.*Test::Set.*
+// CHECK=cppsafe-unused-return-value IgnoredFunctions=foo2;foo3 IgnoredFunctionRegex=^abc::def::.*Test::Set.* AllowCastToVoid=false
 
 int foo();
 int foo2();
 int foo3();
+
+void test_cast_to_void()
+{
+    // CHECK-MESSAGES: :[[@LINE+1]]:11: warning: the value returned by this function should not be disregarded; neglecting it may lead to errors [cppsafe-unused-return-value]
+    (void)foo();
+}
 
 namespace abc { namespace def {
 

@@ -35,7 +35,7 @@ UnusedReturnValueCheck::UnusedReturnValueCheck(llvm::StringRef Name, ClangTidyCo
     : ClangTidyCheck(Name, Context)
     , IgnoredFunctions(Options.get("IgnoredFunctions", ""))
     , IgnoredFunctionRegexStr(Options.get("IgnoredFunctionRegex", ""))
-    , AllowCastToVoid(Options.get("AllowCastToVoid", false))
+    , AllowCastToVoid(Options.get("AllowCastToVoid", true))
 {
     if (!IgnoredFunctionRegexStr.empty()) {
         IgnoredFunctionRegex.emplace(IgnoredFunctionRegexStr);
@@ -63,11 +63,13 @@ void UnusedReturnValueCheck::registerMatchers(MatchFinder* Finder)
         "::memmove",
         "::std::memmove",
         "printf",
+        "fprintf",
         "sprintf",
         "snprintf",
         "strcpy",
         "strncpy",
         "signal",
+        "fputs",
         // cpp std
         "::std::copy",
         "::std::copy_if",
@@ -90,7 +92,8 @@ void UnusedReturnValueCheck::registerMatchers(MatchFinder* Finder)
                      unless(returns(anyOf(voidType(), lValueReferenceType(pointee(unless(isConstQualified())))))),
                      isInstantiatedFrom(unless(hasAnyName(FunVec))))),
             unless(callee(cxxMethodDecl(
-                hasAnyName("insert", "emplace"), returns(hasDeclaration(typedefNameDecl(hasName("iterator"))))))))
+                hasAnyName("insert", "emplace"), returns(hasDeclaration(typedefNameDecl(hasName("iterator"))))))),
+            unless(callee(cxxMethodDecl(hasParent(recordDecl(hasAnyName("::std::atomic", "__atomic_base")))))))
             .bind("match"));
 
     auto CheckCastToVoid = AllowCastToVoid ? castExpr(unless(hasCastKind(CK_ToVoid))) : castExpr();

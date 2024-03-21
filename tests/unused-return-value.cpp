@@ -17,6 +17,8 @@ void bar()
 
     // CHECK-MESSAGES: :[[@LINE+1]]:5: warning: the value returned by this function should not be disregarded; neglecting it may lead to errors [cppsafe-unused-return-value]
     foo4();
+
+    (void)foo();
 }
 
 using size_t = int;
@@ -151,4 +153,40 @@ void test_fetch_add()
     atomic a;
     a.fetch_add(0);
     a.fetch_sub(0);
+}
+
+namespace std {
+
+template <class _Tp>
+struct __atomic_base
+{
+    _Tp fetch_add(_Tp __op);
+    _Tp fetch_sub(_Tp __op);
+    _Tp fetch_and(_Tp __op);
+
+    _Tp operator++(int);
+    _Tp operator++();
+    _Tp operator+=(_Tp __op);
+};
+
+// atomic<T>
+
+template <class _Tp>
+struct atomic
+    : public __atomic_base<_Tp>
+{
+    _Tp operator=(_Tp __d);
+
+    atomic& operator=(const atomic&) = delete;
+    atomic& operator=(const atomic&) volatile = delete;
+};
+}
+
+void test_std_atomic()
+{
+    std::atomic<int> x;
+    x = 10;
+    x++;
+    ++x;
+    x += 1;
 }
